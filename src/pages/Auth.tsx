@@ -1,0 +1,341 @@
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, ArrowLeft } from "lucide-react";
+
+const Auth = () => {
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("student-login");
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleStudentSignup = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const fullName = formData.get("fullName") as string;
+    const passcode = formData.get("passcode") as string;
+
+    if (!email || !password || !fullName || !passcode) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // First, validate the passcode by checking if it exists and isn't used
+      const { data: passcodeData, error: passcodeCheckError } = await supabase
+        .from("registration_passcodes")
+        .select("id, is_used")
+        .eq("passcode", passcode)
+        .single();
+
+      if (passcodeCheckError || !passcodeData || passcodeData.is_used) {
+        toast({
+          title: "Invalid Passcode",
+          description: "The passcode you entered is invalid or has already been used.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Sign up the user
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            full_name: fullName,
+            role: "student",
+          },
+        },
+      });
+
+      if (signUpError) throw signUpError;
+
+      if (authData.user) {
+        // Mark passcode as used
+        const { error: updateError } = await supabase.rpc(
+          "validate_and_use_passcode",
+          {
+            p_passcode: passcode,
+            p_user_id: authData.user.id,
+          }
+        );
+
+        if (updateError) {
+          console.error("Error updating passcode:", updateError);
+        }
+
+        toast({
+          title: "Success!",
+          description: "Your account has been created. Redirecting to dashboard...",
+        });
+
+        setTimeout(() => navigate("/dashboard"), 1500);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Sign up failed",
+        description: error.message || "An error occurred during sign up",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStudentLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Welcome back!",
+        description: "Logging you in...",
+      });
+
+      setTimeout(() => navigate("/dashboard"), 1000);
+    } catch (error: any) {
+      toast({
+        title: "Login failed",
+        description: error.message || "Invalid email or password",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAdminLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      // Check if user is admin
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .single();
+
+      if (profileError || profile?.role !== "admin") {
+        await supabase.auth.signOut();
+        throw new Error("You don't have admin privileges");
+      }
+
+      toast({
+        title: "Welcome, Admin!",
+        description: "Logging you in...",
+      });
+
+      setTimeout(() => navigate("/dashboard"), 1000);
+    } catch (error: any) {
+      toast({
+        title: "Login failed",
+        description: error.message || "Invalid credentials or insufficient privileges",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/30 to-background flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="mb-6">
+          <Link to="/">
+            <Button variant="ghost" className="gap-2">
+              <ArrowLeft className="w-4 h-4" /> Back to Home
+            </Button>
+          </Link>
+        </div>
+
+        <Card className="p-8">
+          <div className="flex items-center gap-2 mb-6 justify-center">
+            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-xl">B</span>
+            </div>
+            <span className="font-bold text-xl">Brototype Portal</span>
+          </div>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="student-login">Student Login</TabsTrigger>
+              <TabsTrigger value="student-signup">Student Sign Up</TabsTrigger>
+              <TabsTrigger value="admin-login">Admin</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="student-login">
+              <form onSubmit={handleStudentLogin} className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="login-email">Email</Label>
+                  <Input
+                    id="login-email"
+                    name="email"
+                    type="email"
+                    placeholder="student@brototype.com"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="login-password">Password</Label>
+                  <Input
+                    id="login-password"
+                    name="password"
+                    type="password"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Logging in...
+                    </>
+                  ) : (
+                    "Login"
+                  )}
+                </Button>
+              </form>
+            </TabsContent>
+
+            <TabsContent value="student-signup">
+              <form onSubmit={handleStudentSignup} className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signup-name">Full Name</Label>
+                  <Input
+                    id="signup-name"
+                    name="fullName"
+                    type="text"
+                    placeholder="John Doe"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email">Email</Label>
+                  <Input
+                    id="signup-email"
+                    name="email"
+                    type="email"
+                    placeholder="student@brototype.com"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-password">Password</Label>
+                  <Input
+                    id="signup-password"
+                    name="password"
+                    type="password"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-passcode">Registration Passcode</Label>
+                  <Input
+                    id="signup-passcode"
+                    name="passcode"
+                    type="text"
+                    placeholder="Enter passcode from campus"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Contact campus department for your registration passcode
+                  </p>
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating account...
+                    </>
+                  ) : (
+                    "Sign Up"
+                  )}
+                </Button>
+              </form>
+            </TabsContent>
+
+            <TabsContent value="admin-login">
+              <form onSubmit={handleAdminLogin} className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="admin-email">Admin Email</Label>
+                  <Input
+                    id="admin-email"
+                    name="email"
+                    type="email"
+                    placeholder="admin@brototype.com"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="admin-password">Password</Label>
+                  <Input
+                    id="admin-password"
+                    name="password"
+                    type="password"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Logging in...
+                    </>
+                  ) : (
+                    "Admin Login"
+                  )}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default Auth;

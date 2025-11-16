@@ -14,16 +14,73 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string | null
+          full_name: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      registration_passcodes: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_used: boolean | null
+          passcode: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_used?: boolean | null
+          passcode: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_used?: boolean | null
+          passcode?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { p_user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      validate_and_use_passcode: {
+        Args: { p_passcode: string; p_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "student" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +207,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["student", "admin"],
+    },
   },
 } as const

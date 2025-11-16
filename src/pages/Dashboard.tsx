@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   MessageSquare, 
   Calendar, 
@@ -12,16 +13,26 @@ import {
   Send,
   CheckCircle2,
   Clock,
-  XCircle
+  XCircle,
+  LogOut
 } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Dashboard = () => {
   const { toast } = useToast();
+  const { user, userRole, loading, signOut } = useAuth();
+  const navigate = useNavigate();
   const [complaintTitle, setComplaintTitle] = useState("");
   const [complaintDescription, setComplaintDescription] = useState("");
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+    }
+  }, [user, loading, navigate]);
 
   const handleComplaintSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +43,24 @@ const Dashboard = () => {
     setComplaintTitle("");
     setComplaintDescription("");
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/30 to-background">
+        <div className="container mx-auto px-4 py-8">
+          <div className="space-y-4">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-32 w-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/30 to-background">
@@ -46,8 +75,12 @@ const Dashboard = () => {
               <span className="font-bold text-xl">Brototype Portal</span>
             </Link>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">Welcome, Student</span>
-              <Button variant="ghost" size="sm">Logout</Button>
+              <Badge variant="outline" className="px-3 py-1">
+                {userRole === "admin" ? "Admin" : "Student"}
+              </Badge>
+              <Button variant="ghost" size="sm" onClick={signOut} className="gap-2">
+                <LogOut className="w-4 h-4" /> Logout
+              </Button>
             </div>
           </div>
         </div>
