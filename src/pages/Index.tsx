@@ -1,14 +1,119 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { MessageSquare, Calendar, BarChart3, Megaphone, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/30 to-background">
+      {/* Hero Section */}
+      <header className="container mx-auto px-4 py-8">
+        <nav className="flex items-center justify-between mb-20">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-xl">B</span>
+            </div>
+            <span className="font-bold text-xl">Brototype Portal</span>
+          </div>
+          <Link to="/dashboard">
+            <Button variant="outline">Student Login</Button>
+          </Link>
+        </nav>
+
+        <div className="max-w-4xl mx-auto text-center mb-16">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Your Digital Campus Hub
+          </h1>
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            A streamlined platform for Brototype students to manage complaints, track attendance, 
+            request leaves, and stay updated with announcements.
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Link to="/dashboard">
+              <Button size="lg" className="gap-2">
+                Get Started <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+            <Button size="lg" variant="outline">Learn More</Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Features Grid */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <FeatureCard
+            icon={<MessageSquare className="w-6 h-6" />}
+            title="Complaint System"
+            description="Submit and track complaints with transparent status updates"
+          />
+          <FeatureCard
+            icon={<Calendar className="w-6 h-6" />}
+            title="Leave Requests"
+            description="Request leave and get instant approval notifications"
+          />
+          <FeatureCard
+            icon={<BarChart3 className="w-6 h-6" />}
+            title="Attendance"
+            description="View your attendance summary and track your presence"
+          />
+          <FeatureCard
+            icon={<Megaphone className="w-6 h-6" />}
+            title="Announcements"
+            description="Stay updated with important campus announcements"
+          />
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12">Why Use This Portal?</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <BenefitCard
+              title="Save Time"
+              description="No more WhatsApp spam. Everything in one place."
+            />
+            <BenefitCard
+              title="Stay Organized"
+              description="Track all your requests and get timely responses."
+            />
+            <BenefitCard
+              title="Transparency"
+              description="Clear visibility into attendance and complaint status."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t mt-20">
+        <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
+          <p>© 2024 Brototype Student Portal. Built for excellence.</p>
+        </div>
+      </footer>
     </div>
   );
 };
+
+const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) => (
+  <Card className="p-6 hover:shadow-lg transition-shadow">
+    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary mb-4">
+      {icon}
+    </div>
+    <h3 className="font-semibold text-lg mb-2">{title}</h3>
+    <p className="text-sm text-muted-foreground">{description}</p>
+  </Card>
+);
+
+const BenefitCard = ({ title, description }: { title: string; description: string }) => (
+  <div className="text-center">
+    <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center text-accent mx-auto mb-4">
+      <div className="w-8 h-8 bg-accent rounded-full"></div>
+    </div>
+    <h3 className="font-semibold text-lg mb-2">{title}</h3>
+    <p className="text-sm text-muted-foreground">{description}</p>
+  </div>
+);
 
 export default Index;
