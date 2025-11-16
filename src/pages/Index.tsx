@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { MessageSquare, Calendar, BarChart3, Megaphone, ArrowRight } from "lucide-react";
+import { MessageSquare, Calendar, BarChart3, Megaphone } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Index = () => {
@@ -28,40 +28,40 @@ const Index = () => {
             A streamlined platform for Brototype students to manage complaints, track attendance, 
             request leaves, and stay updated with announcements.
           </p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Link to="/dashboard">
-              <Button size="lg" className="gap-2">
-                Get Started <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-            <Button size="lg" variant="outline">Learn More</Button>
-          </div>
         </div>
       </header>
 
       {/* Features Grid */}
       <section className="container mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-          <FeatureCard
-            icon={<MessageSquare className="w-6 h-6" />}
-            title="Complaint System"
-            description="Submit and track complaints with transparent status updates"
-          />
-          <FeatureCard
-            icon={<Calendar className="w-6 h-6" />}
-            title="Leave Requests"
-            description="Request leave and get instant approval notifications"
-          />
-          <FeatureCard
-            icon={<BarChart3 className="w-6 h-6" />}
-            title="Attendance"
-            description="View your attendance summary and track your presence"
-          />
-          <FeatureCard
-            icon={<Megaphone className="w-6 h-6" />}
-            title="Announcements"
-            description="Stay updated with important campus announcements"
-          />
+          <Link to="/complaints">
+            <FeatureCard
+              icon={<MessageSquare className="w-6 h-6" />}
+              title="Complaint System"
+              description="Submit and track complaints with transparent status updates"
+            />
+          </Link>
+          <Link to="/leave-request">
+            <FeatureCard
+              icon={<Calendar className="w-6 h-6" />}
+              title="Leave Requests"
+              description="Request leave and get instant approval notifications"
+            />
+          </Link>
+          <Link to="/attendance">
+            <FeatureCard
+              icon={<BarChart3 className="w-6 h-6" />}
+              title="Attendance"
+              description="View your attendance summary and track your presence"
+            />
+          </Link>
+          <Link to="/announcements">
+            <FeatureCard
+              icon={<Megaphone className="w-6 h-6" />}
+              title="Announcements"
+              description="Stay updated with important campus announcements"
+            />
+          </Link>
         </div>
       </section>
 
@@ -88,8 +88,13 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="border-t mt-20">
-        <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
-          <p>© 2024 Brototype Student Portal. Built for excellence.</p>
+        <div className="container mx-auto px-4 py-12">
+          <div className="flex justify-center mb-8">
+            <Button size="lg" variant="outline">Learn More</Button>
+          </div>
+          <div className="text-center text-muted-foreground">
+            <p>© 2024 Brototype Student Portal. Built for excellence.</p>
+          </div>
         </div>
       </footer>
     </div>
@@ -97,7 +102,7 @@ const Index = () => {
 };
 
 const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) => (
-  <Card className="p-6 hover:shadow-lg transition-shadow">
+  <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer hover:scale-105 transition-transform">
     <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary mb-4">
       {icon}
     </div>
