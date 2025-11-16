@@ -15,9 +15,14 @@ const Index = () => {
             </div>
             <span className="font-bold text-xl">Brototype Portal</span>
           </div>
-          <Link to="/dashboard">
-            <Button variant="outline">Student Login</Button>
-          </Link>
+          <div className="flex gap-2">
+            <Link to="/auth">
+              <Button variant="outline">Login</Button>
+            </Link>
+            <Link to="/auth">
+              <Button>Sign Up</Button>
+            </Link>
+          </div>
         </nav>
 
         <div className="max-w-4xl mx-auto text-center mb-16">
