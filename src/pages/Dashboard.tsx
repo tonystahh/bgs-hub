@@ -20,6 +20,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { formatDistanceToNow } from "date-fns";
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -27,6 +29,9 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [complaintTitle, setComplaintTitle] = useState("");
   const [complaintDescription, setComplaintDescription] = useState("");
+  const [complaints, setComplaints] = useState<any[]>([]);
+  const [loadingComplaints, setLoadingComplaints] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -34,14 +39,67 @@ const Dashboard = () => {
     }
   }, [user, loading, navigate]);
 
-  const handleComplaintSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) {
+      fetchComplaints();
+    }
+  }, [user]);
+
+  const fetchComplaints = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('complaints')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+      setComplaints(data || []);
+    } catch (error) {
+      console.error('Error fetching complaints:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load complaints",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingComplaints(false);
+    }
+  };
+
+  const handleComplaintSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Complaint Submitted",
-      description: "Your complaint has been submitted successfully. You'll receive a response soon.",
-    });
-    setComplaintTitle("");
-    setComplaintDescription("");
+    if (!user) return;
+
+    setSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('complaints')
+        .insert({
+          user_id: user.id,
+          title: complaintTitle,
+          description: complaintDescription,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Complaint Submitted",
+        description: "Your complaint has been submitted successfully. You'll receive a response soon.",
+      });
+      setComplaintTitle("");
+      setComplaintDescription("");
+      fetchComplaints();
+    } catch (error) {
+      console.error('Error submitting complaint:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit complaint. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -152,9 +210,9 @@ const Dashboard = () => {
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full gap-2">
+                  <Button type="submit" className="w-full gap-2" disabled={submitting}>
                     <Send className="w-4 h-4" />
-                    Submit Complaint
+                    {submitting ? "Submitting..." : "Submit Complaint"}
                   </Button>
                 </form>
               </CardContent>
@@ -167,22 +225,27 @@ const Dashboard = () => {
                 <CardDescription>Track the status of your submissions</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <ComplaintItem
-                  title="Internet connectivity issues in Lab 2"
-                  status="resolved"
-                  date="2 days ago"
-                  reply="Fixed. New router installed."
-                />
-                <ComplaintItem
-                  title="AC not working in classroom"
-                  status="in-review"
-                  date="1 day ago"
-                />
-                <ComplaintItem
-                  title="Request for extended lab hours"
-                  status="pending"
-                  date="3 hours ago"
-                />
+                {loadingComplaints ? (
+                  <>
+                    <Skeleton className="h-20 w-full" />
+                    <Skeleton className="h-20 w-full" />
+                    <Skeleton className="h-20 w-full" />
+                  </>
+                ) : complaints.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-8">
+                    No complaints yet. Submit one above.
+                  </p>
+                ) : (
+                  complaints.map((complaint) => (
+                    <ComplaintItem
+                      key={complaint.id}
+                      title={complaint.title}
+                      status={complaint.status}
+                      date={formatDistanceToNow(new Date(complaint.created_at), { addSuffix: true })}
+                      reply={complaint.reply}
+                    />
+                  ))
+                )}
               </CardContent>
             </Card>
           </div>
