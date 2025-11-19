@@ -103,6 +103,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_passcode_valid: { Args: { p_passcode: string }; Returns: boolean }
       get_user_role: {
         Args: { p_user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
