@@ -16,9 +16,9 @@ const LeaveRequest = () => {
             </div>
             <span className="font-bold text-xl">Brototype Portal</span>
           </div>
-          <Link to="/">
+          <Link to="/dashboard">
             <Button variant="outline" className="gap-2">
-              <ArrowLeft className="w-4 h-4" /> Back to Home
+              <ArrowLeft className="w-4 h-4" /> Back to Dashboard
             </Button>
           </Link>
         </nav>
