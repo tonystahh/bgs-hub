@@ -36,14 +36,11 @@ const Auth = () => {
     }
 
     try {
-      // First, validate the passcode by checking if it exists and isn't used
-      const { data: passcodeData, error: passcodeCheckError } = await supabase
-        .from("registration_passcodes")
-        .select("id, is_used")
-        .eq("passcode", passcode)
-        .single();
+      // First, validate the passcode using the security definer function
+      const { data: isValid, error: passcodeCheckError } = await supabase
+        .rpc("check_passcode_valid", { p_passcode: passcode });
 
-      if (passcodeCheckError || !passcodeData || passcodeData.is_used) {
+      if (passcodeCheckError || !isValid) {
         toast({
           title: "Invalid Passcode",
           description: "The passcode you entered is invalid or has already been used.",
