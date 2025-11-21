@@ -55,10 +55,10 @@ const Index = () => {
       
 
       {/* Benefits Section */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Why Use This Portal?</h2>
-          <div className="grid md:grid-cols-3 gap-8">
+      <section className="container mx-auto px-4 py-8">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-xl font-bold text-center mb-6">Why Use This Portal?</h2>
+          <div className="grid md:grid-cols-3 gap-4">
             <BenefitCard title="Save Time" description="No more WhatsApp spam. Everything in one place." />
             <BenefitCard title="Stay Organized" description="Track all your requests and get timely responses." />
             <BenefitCard title="Transparency" description="Clear visibility into attendance and complaint status." />
