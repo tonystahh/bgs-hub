@@ -129,7 +129,7 @@ const Complaints = () => {
             <form onSubmit={handleComplaintSubmit} className="space-y-4">
               <div>
                 
-                <Input placeholder="Brief description of your complaint" value={complaintTitle} onChange={e => setComplaintTitle(e.target.value)} disabled={submitting} />
+                
               </div>
               <div>
                 
