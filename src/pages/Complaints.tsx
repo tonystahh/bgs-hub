@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MessageSquare, ArrowLeft } from "lucide-react";
@@ -128,12 +129,25 @@ const Complaints = () => {
             <h2 className="text-xl font-semibold mb-4">Submit New Complaint</h2>
             <form onSubmit={handleComplaintSubmit} className="space-y-4">
               <div>
-                
-                
+                <Label htmlFor="complaint-title">Complaint Title</Label>
+                <Input 
+                  id="complaint-title"
+                  placeholder="Enter a brief title for your complaint" 
+                  value={complaintTitle} 
+                  onChange={e => setComplaintTitle(e.target.value)} 
+                  disabled={submitting} 
+                />
               </div>
               <div>
-                
-                <Textarea placeholder="Provide detailed information about your complaint" rows={5} value={complaintDescription} onChange={e => setComplaintDescription(e.target.value)} disabled={submitting} />
+                <Label htmlFor="complaint-description">Description</Label>
+                <Textarea 
+                  id="complaint-description"
+                  placeholder="Provide detailed information about your complaint" 
+                  rows={5} 
+                  value={complaintDescription} 
+                  onChange={e => setComplaintDescription(e.target.value)} 
+                  disabled={submitting} 
+                />
               </div>
               <Button type="submit" className="w-full" disabled={submitting}>
                 {submitting ? "Submitting..." : "Submit Complaint"}
