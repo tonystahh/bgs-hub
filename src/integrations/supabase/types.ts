@@ -47,6 +47,39 @@ export type Database = {
         }
         Relationships: []
       }
+      leave_requests: {
+        Row: {
+          admin_note: string | null
+          created_at: string
+          id: string
+          leave_date: string
+          reason: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          created_at?: string
+          id?: string
+          leave_date: string
+          reason: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          created_at?: string
+          id?: string
+          leave_date?: string
+          reason?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
