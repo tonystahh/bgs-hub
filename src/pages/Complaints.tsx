@@ -18,7 +18,6 @@ const Complaints = () => {
     loading
   } = useAuth();
   const navigate = useNavigate();
-  const [complaintTitle, setComplaintTitle] = useState("");
   const [complaintDescription, setComplaintDescription] = useState("");
   const [complaints, setComplaints] = useState<any[]>([]);
   const [loadingComplaints, setLoadingComplaints] = useState(true);
@@ -57,21 +56,24 @@ const Complaints = () => {
   };
   const handleComplaintSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!complaintTitle.trim() || !complaintDescription.trim()) {
+    if (!complaintDescription.trim()) {
       toast({
         title: "Error",
-        description: "Please fill in all fields",
+        description: "Please enter your complaint",
         variant: "destructive"
       });
       return;
     }
     try {
       setSubmitting(true);
+      // Auto-generate title from first 50 characters of description
+      const autoTitle = complaintDescription.trim().substring(0, 50) + (complaintDescription.length > 50 ? "..." : "");
+      
       const {
         error
       } = await supabase.from("complaints").insert({
         user_id: user?.id,
-        title: complaintTitle,
+        title: autoTitle,
         description: complaintDescription,
         status: "pending"
       });
@@ -80,7 +82,6 @@ const Complaints = () => {
         title: "Success",
         description: "Complaint submitted successfully"
       });
-      setComplaintTitle("");
       setComplaintDescription("");
       fetchComplaints();
     } catch (error) {
@@ -129,21 +130,11 @@ const Complaints = () => {
             <h2 className="text-xl font-semibold mb-4">Submit New Complaint</h2>
             <form onSubmit={handleComplaintSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="complaint-title">Complaint Title</Label>
-                <Input 
-                  id="complaint-title"
-                  placeholder="Enter a brief title for your complaint" 
-                  value={complaintTitle} 
-                  onChange={e => setComplaintTitle(e.target.value)} 
-                  disabled={submitting} 
-                />
-              </div>
-              <div>
-                <Label htmlFor="complaint-description">Description</Label>
+                <Label htmlFor="complaint-description">Your Complaint</Label>
                 <Textarea 
                   id="complaint-description"
-                  placeholder="Provide detailed information about your complaint" 
-                  rows={5} 
+                  placeholder="Describe your complaint in detail..." 
+                  rows={6} 
                   value={complaintDescription} 
                   onChange={e => setComplaintDescription(e.target.value)} 
                   disabled={submitting} 
